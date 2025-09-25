@@ -66,7 +66,7 @@ import AnimatedGradientBackground from './components/AnimatedGradientBackground.
   display: flex;
   align-items: center;
   gap: 10px;
-  color: black;
+  color: white;
 }
 
 .app-nav {
