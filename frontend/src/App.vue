@@ -20,6 +20,10 @@
               <el-icon><Calendar /></el-icon>
               项目日历
             </router-link>
+            <router-link to="/ai-chat-test" class="nav-link">
+              <el-icon><ChatDotRound /></el-icon>
+              AI聊天测试
+            </router-link>
           </nav>
         </div>
       </el-header>
@@ -32,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { House, List, Calendar, Management } from '@element-plus/icons-vue'
+import { House, List, Calendar, Management, ChatDotRound } from '@element-plus/icons-vue'
 import AnimatedGradientBackground from './components/AnimatedGradientBackground.vue'
 </script>
 

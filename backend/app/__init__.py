@@ -27,7 +27,8 @@ def create_app():
     from routes.export import export_bp
     from routes.statistics import statistics_bp
     from routes.health import health_bp
-    
+    from routes.ai_chat import ai_chat_bp
+
     app.register_blueprint(projects_bp, url_prefix='/api/projects')
     app.register_blueprint(tasks_bp, url_prefix='/api')
     app.register_blueprint(timeline_bp, url_prefix='/api')
@@ -35,6 +36,7 @@ def create_app():
     app.register_blueprint(export_bp, url_prefix='/api')
     app.register_blueprint(statistics_bp, url_prefix='/api')
     app.register_blueprint(health_bp)
+    app.register_blueprint(ai_chat_bp, url_prefix='/api')
     
     # 创建数据库表
     with app.app_context():

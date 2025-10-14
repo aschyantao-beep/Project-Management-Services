@@ -4,6 +4,9 @@ import enum
 
 db = SQLAlchemy()
 
+# Import AI chat models
+from .ai_chat import AIConfig, ChatConversation, ChatMessage, AIProvider
+
 class ProjectStatus(enum.Enum):
     PLANNING = "Planning"
     IN_PROGRESS = "InProgress"
