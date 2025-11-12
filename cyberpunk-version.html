@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理大师 - 赛博朋克版</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0a0e27 0%, #1a1f3a 25%, #ff006e 50%, #8338ec 75%, #3a86ff 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .lottie-container {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        #lottie-cat {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.8));
+        }
+
+        .title {
+            font-size: 3.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.8)); }
+            to { filter: drop-shadow(0 0 30px rgba(255, 0, 255, 0.8)); }
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #a0ff00;
+            text-shadow: 0 0 10px rgba(160, 255, 0, 0.8);
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow:
+                0 0 20px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(255, 0, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+            border-radius: 15px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow:
+                0 10px 30px rgba(0, 255, 255, 0.5),
+                inset 0 0 30px rgba(255, 0, 255, 0.2);
+        }
+
+        .project-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .project-goal {
+            color: #ffffff;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+        }
+
+        .project-manager {
+            color: #ffff00;
+            font-weight: 500;
+            text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+        }
+
+        .project-date {
+            color: #ff00ff;
+            text-shadow: 0 0 8px rgba(255, 0, 255, 0.8);
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-planning {
+            background: linear-gradient(45deg, #00ffff, #0099cc);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+        }
+
+        .status-in-progress {
+            background: linear-gradient(45deg, #ffff00, #ff9900);
+            color: #000;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.6);
+        }
+
+        .status-completed {
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+        }
+
+        .priority-high {
+            color: #ff0066;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 0, 102, 0.8);
+        }
+
+        .priority-medium {
+            color: #ffaa00;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.8);
+        }
+
+        .priority-low {
+            color: #00ff88;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+        }
+
+        .add-project-btn {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            border: none;
+            border-radius: 50%;
+            font-size: 36px;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            box-shadow:
+                0 0 30px rgba(0, 255, 255, 0.8),
+                0 10px 30px rgba(255, 0, 255, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .add-project-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow:
+                0 0 40px rgba(0, 255, 255, 1),
+                0 15px 40px rgba(255, 0, 255, 0.6);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 50, 100, 0.9));
+            margin: 3% auto;
+            padding: 40px;
+            border: 2px solid #00ffff;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow:
+                0 0 50px rgba(0, 255, 255, 0.6),
+                inset 0 0 30px rgba(255, 0, 255, 0.2);
+            position: relative;
+        }
+
+        .close {
+            color: #ff0066;
+            float: right;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            text-shadow: 0 0 10px rgba(255, 0, 102, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ffaa00;
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #ffffff;
+            backdrop-filter: blur(5px);
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: #000;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 30px rgba(255, 0, 255, 0.8);
+        }
+
+        .storage-info {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .tasks-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        .task-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            accent-color: #00ffff;
+        }
+
+        .task-text {
+            flex: 1;
+            color: #ffffff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .task-completed .task-text {
+            text-decoration: line-through;
+            color: #00ff88;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #ffffff;
+        }
+
+        .empty-state h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .empty-state p {
+            font-size: 1.3em;
+            color: #a0ff00;
+            text-shadow: 0 0 10px rgba(160, 255, 0, 0.8);
+        }
+
+        .cyber-button {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: #000;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            text-shadow: none;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .cyber-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-grid"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="lottie-container">
+                <div id="lottie-cat">🐱</div>
+            </div>
+            <h1 class="title">项目管理大师</h1>
+            <p class="subtitle">🚀 赛博朋克版本 - 终极体验</p>
+        </div>
+
+        <div class="storage-info">
+            💾 本地存储版本 - 数据保存在浏览器本地，刷新页面不会丢失
+        </div>
+
+        <div id="projectsList">
+            <div class="project-grid" id="projectGrid">
+                <!-- 项目卡片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>🎯 开始您的赛博朋克项目</h2>
+            <p>点击右下角的 + 按钮创建新项目</p>
+        </div>
+    </div>
+
+    <!-- 添加项目按钮 -->
+    <button class="add-project-btn" onclick="openModal()">+</button>
+
+    <!-- 模态框 -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 style="margin-bottom: 30px; text-align: center; color: #00ffff; text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);">
+                🚀 创建新项目
+            </h2>
+            <form id="projectForm">
+                <div class="form-group">
+                    <label for="projectTitle">📝 项目名称</label>
+                    <input type="text" id="projectTitle" name="title" required placeholder="输入您的项目名称...">
+                </div>
+                <div class="form-group">
+                    <label for="projectGoal">🎯 项目目标</label>
+                    <textarea id="projectGoal" name="goal" required placeholder="描述您要实现的目标..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectManager">👤 项目负责人</label>
+                    <input type="text" id="projectManager" name="manager" required placeholder="项目负责人姓名...">
+                </div>
+                <div class="form-group">
+                    <label for="projectStatus">📊 项目状态</label>
+                    <select id="projectStatus" name="status">
+                        <option value="Planning">🔵 规划中</option>
+                        <option value="InProgress">🟡 进行中</option>
+                        <option value="Completed">🟢 已完成</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="projectPriority">⚡ 优先级</label>
+                    <select id="projectPriority" name="priority">
+                        <option value="High">🔴 高优先级</option>
+                        <option value="Medium" selected>🟡 中优先级</option>
+                        <option value="Low">🟢 低优先级</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="projectParticipants">👥 参与人员</label>
+                    <input type="text" id="projectParticipants" name="participants" placeholder="用逗号分隔多个人员...">
+                </div>
+                <div class="form-group">
+                    <label for="startDate">📅 开始日期</label>
+                    <input type="date" id="startDate" name="start_date">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">🎯 结束日期</label>
+                    <input type="date" id="endDate" name="end_date">
+                </div>
+                <button type="submit" class="btn">🚀 创建项目</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 简化的Lottie猫咪动画
+        function initLottieCat() {
+            const container = document.getElementById('lottie-cat');
+            if (container) {
+                // 创建一个简单的CSS动画猫咪
+                container.innerHTML = `
+                    <div style="
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 100px;
+                        animation: bounce 2s infinite;
+                        filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.8));
+                    ">🐱</div>
+                    <style>
+                        @keyframes bounce {
+                            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                            40% { transform: translateY(-20px); }
+                            60% { transform: translateY(-10px); }
+                        }
+                    </style>
+                `;
+            }
+        }
+
+        // 本地存储管理
+        class CyberProjectManager {
+            constructor() {
+                this.projects = this.loadProjects();
+                this.render();
+            }
+
+            loadProjects() {
+                const stored = localStorage.getItem('cyberProjects');
+                return stored ? JSON.parse(stored) : [];
+            }
+
+            saveProjects() {
+                localStorage.setItem('cyberProjects', JSON.stringify(this.projects));
+            }
+
+            addProject(projectData) {
+                const project = {
+                    id: Date.now(),
+                    ...projectData,
+                    created_at: new Date().toISOString(),
+                    task_count: 0,
+                    completed_task_count: 0
+                };
+                this.projects.push(project);
+                this.saveProjects();
+                this.render();
+                return project;
+            }
+
+            updateProject(projectId, updateData) {
+                const index = this.projects.findIndex(p => p.id === projectId);
+                if (index !== -1) {
+                    this.projects[index] = { ...this.projects[index], ...updateData };
+                    this.saveProjects();
+                    this.render();
+                    return this.projects[index];
+                }
+                return null;
+            }
+
+            deleteProject(projectId) {
+                this.projects = this.projects.filter(p => p.id !== projectId);
+                this.saveProjects();
+                this.render();
+            }
+
+            toggleTask(projectId, taskIndex) {
+                const project = this.projects.find(p => p.id === projectId);
+                if (project && project.tasks) {
+                    project.tasks[taskIndex].is_completed = !project.tasks[taskIndex].is_completed;
+                    project.completed_task_count = project.tasks.filter(t => t.is_completed).length;
+                    this.saveProjects();
+                    this.render();
+                }
+            }
+
+            addTask(projectId, taskContent) {
+                const project = this.projects.find(p => p.id === projectId);
+                if (project) {
+                    if (!project.tasks) project.tasks = [];
+                    project.tasks.push({
+                        id: Date.now(),
+                        content: taskContent,
+                        is_completed: false,
+                        created_at: new Date().toISOString()
+                    });
+                    project.task_count = project.tasks.length;
+                    this.saveProjects();
+                    this.render();
+                }
+            }
+
+            getStatusClass(status) {
+                const statusMap = {
+                    'Planning': 'status-planning',
+                    'InProgress': 'status-in-progress',
+                    'Completed': 'status-completed'
+                };
+                return statusMap[status] || 'status-planning';
+            }
+
+            getStatusText(status) {
+                const statusMap = {
+                    'Planning': '规划中',
+                    'InProgress': '进行中',
+                    'Completed': '已完成'
+                };
+                return statusMap[status] || status;
+            }
+
+            getPriorityClass(priority) {
+                const priorityMap = {
+                    'High': 'priority-high',
+                    'Medium': 'priority-medium',
+                    'Low': 'priority-low'
+                };
+                return priorityMap[priority] || 'priority-medium';
+            }
+
+            getPriorityText(priority) {
+                const priorityMap = {
+                    'High': '高',
+                    'Medium': '中',
+                    'Low': '低'
+                };
+                return priorityMap[priority] || priority;
+            }
+
+            formatDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('zh-CN');
+            }
+
+            render() {
+                const projectGrid = document.getElementById('projectGrid');
+                const emptyState = document.getElementById('emptyState');
+
+                if (this.projects.length === 0) {
+                    projectGrid.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                projectGrid.style.display = 'grid';
+                emptyState.style.display = 'none';
+
+                projectGrid.innerHTML = this.projects.map(project => `
+                    <div class="project-card">
+                        <div class="project-title">🚀 ${project.title}</div>
+                        <div class="project-goal">${project.goal}</div>
+
+                        <div class="project-meta">
+                            <span class="project-manager">👤 ${project.manager}</span>
+                            <span class="project-status ${this.getStatusClass(project.status)}">
+                                ${this.getStatusText(project.status)}
+                            </span>
+                        </div>
+
+                        <div class="project-meta">
+                            <span class="project-date">📅 ${this.formatDate(project.start_date)}</span>
+                            <span class="${this.getPriorityClass(project.priority)}">
+                                ⚡ ${this.getPriorityText(project.priority)}优先级
+                            </span>
+                        </div>
+
+                        ${project.participants ? `
+                            <div class="project-meta">
+                                <span>👥 ${project.participants}</span>
+                            </div>
+                        ` : ''}
+
+                        ${project.end_date ? `
+                            <div class="project-meta">
+                                <span>🎯 目标: ${this.formatDate(project.end_date)}</span>
+                            </div>
+                        ` : ''}
+
+                        <div class="project-meta">
+                            <span>📋 任务: ${project.completed_task_count || 0}/${project.task_count || 0}</span>
+                        </div>
+
+                        <div class="tasks-section">
+                            <div style="margin-bottom: 10px; color: #00ffff; font-weight: bold;">
+                                🎯 任务列表:
+                            </div>
+                            ${this.renderTasks(project)}
+                        </div>
+
+                        <div style="margin-top: 20px; display: flex; gap: 10px;">
+                            <button onclick="addNewTask(${project.id})" class="cyber-button" style="flex: 1;">
+                                ➕ 添加任务
+                            </button>
+                            <button onclick="deleteProject(${project.id})" class="cyber-button" style="flex: 1; background: linear-gradient(45deg, #ff0066, #ff3366);">
+                                🗑️ 删除项目
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderTasks(project) {
+                if (!project.tasks || project.tasks.length === 0) {
+                    return '<div style="color: #a0ff00; font-size: 0.9em; text-shadow: 0 0 8px rgba(160, 255, 0, 0.6);">暂无任务</div>';
+                }
+
+                return project.tasks.map((task, index) => `
+                    <div class="task-item ${task.is_completed ? 'task-completed' : ''}">
+                        <input type="checkbox" class="task-checkbox"
+                               ${task.is_completed ? 'checked' : ''}
+                               onchange="cyberProjectManager.toggleTask(${project.id}, ${index})">
+                        <span class="task-text">${task.content}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 初始化
+        let cyberProjectManager;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            cyberProjectManager = new CyberProjectManager();
+            initLottieCat();
+        });
+
+        // 模态框控制
+        function openModal() {
+            document.getElementById('projectModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('projectModal').style.display = 'none';
+            document.getElementById('projectForm').reset();
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('projectModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // 表单提交
+        document.getElementById('projectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const projectData = {
+                title: formData.get('title'),
+                goal: formData.get('goal'),
+                manager: formData.get('manager'),
+                status: formData.get('status'),
+                priority: formData.get('priority'),
+                participants: formData.get('participants'),
+                start_date: formData.get('start_date'),
+                end_date: formData.get('end_date')
+            };
+
+            cyberProjectManager.addProject(projectData);
+            closeModal();
+        });
+
+        // 删除项目
+        function deleteProject(projectId) {
+            if (confirm('🚀 确定要删除这个赛博朋克项目吗？')) {
+                cyberProjectManager.deleteProject(projectId);
+            }
+        }
+
+        // 添加任务
+        function addNewTask(projectId) {
+            const taskContent = prompt('🎯 请输入任务内容:');
+            if (taskContent && taskContent.trim()) {
+                cyberProjectManager.addTask(projectId, taskContent.trim());
+            }
+        }
+    </script>
+</body>
+</html>
