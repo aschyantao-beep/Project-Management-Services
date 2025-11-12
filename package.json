@@ -1,0 +1,49 @@
+{
+  "name": "project-manager",
+  "version": "2.0.0",
+  "description": "项目管理大师 - 基于Supabase的现代化项目管理工具",
+  "main": "frontend/dist/index.html",
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "preview": "cd frontend && npm run preview",
+    "deploy": "vercel --prod",
+    "setup": "npm install && cd frontend && npm install",
+    "init-db": "node scripts/setup-database.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "project-management",
+    "task-management",
+    "supabase",
+    "vercel",
+    "vue",
+    "javascript",
+    "web-app"
+  ],
+  "author": "项目管理大师团队",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/project-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/project-manager/issues"
+  },
+  "homepage": "https://github.com/your-username/project-manager#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

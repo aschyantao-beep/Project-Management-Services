@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理大师 - 选择版本</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(ellipse at center, #000000 0%, #001f7f 40%, #ff69b4 80%, #ffa500 100%);
+            background-size: cover;
+            min-height: 100vh;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .version-selector {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 191, 255, 0.3);
+            max-width: 600px;
+            margin: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(0, 191, 255, 0.8);
+        }
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .version-cards {
+            display: grid;
+            gap: 20px;
+        }
+        .version-card {
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(255, 0, 150, 0.1));
+            padding: 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        .version-card:hover {
+            border-color: #00bfff;
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.2), rgba(255, 0, 150, 0.2));
+            transform: translateY(-2px);
+        }
+        .version-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .version-description {
+            font-size: 1em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        .version-features {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        .new-badge {
+            background: linear-gradient(45deg, #ff0080, #ff8c00);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="version-selector">
+        <h1>项目管理大师</h1>
+        <div class="subtitle">选择一个版本来体验完整功能</div>
+
+        <div class="version-cards">
+            <a href="standalone-enhanced-lottie-center.html" class="version-card">
+                <div class="version-title">
+                    赛博朋克版 (Lottie猫咪居中版)
+                    <span class="new-badge">推荐</span>
+                </div>
+                <div class="version-description">
+                    最新的完整功能版本，包含移动的Lottie猫咪动画和居中设计的精美界面
+                </div>
+                <div class="version-features">
+                    ✅ 项目管理完整功能 | ✅ 赛博朋克风格设计 | ✅ Lottie动态猫咪 | ✅ 居中布局优化
+                </div>
+            </a>
+
+            <a href="standalone-enhanced.html" class="version-card">
+                <div class="version-title">增强版</div>
+                <div class="version-description">
+                    功能完善的另一个版本，具有专业的项目管理界面和完整的数据管理功能
+                </div>
+                <div class="version-features">
+                    ✅ 标准项目管理 | ✅ 增强用户界面 | ✅ 完整CRUD操作 | ✅ 数据持久化
+                </div>
+            </a>
+
+            <a href="launcher.html" class="version-card">
+                <div class="version-title">启动器版本</div>
+                <div class="version-description">
+                    带启动器的选择版本，需要先运行后端服务
+                </div>
+                <div class="version-features">
+                    ✅ 服务状态检测 | ✅ 多版本管理 | ✅ 链接后端 | ✅ 专业体验
+                </div>
+            </a>
+        </div>
+
+        <div style="margin-top: 30px; opacity: 0.7; font-size: 0.9em;">
+            💡 建议选择<strong>赛博朋克版</strong>以获得最佳体验
+        </div>
+    </div>
+</body>
+</html>

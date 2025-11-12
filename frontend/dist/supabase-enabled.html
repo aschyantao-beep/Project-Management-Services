@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="app-title">项目管理大师</title>
+    <meta name="description" id="app-description" content="基于Web的现代化项目管理工具">
+
+    <!-- Supabase Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <!-- UI Libraries -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.4.4/dist/index.css">
+
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-info {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-planning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .status-in-progress {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .status-completed {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-on-hold {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .priority-high {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .priority-medium {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .priority-low {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error-message {
+            background: var(--danger-color);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .config-needed {
+            background: var(--warning-color);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .config-needed h3 {
+            margin-bottom: 10px;
+        }
+
+        .config-needed p {
+            margin-bottom: 15px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <div class="header">
+            <h1>{{ appTitle }}</h1>
+            <p>{{ appDescription }}</p>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="loading" class="loading">
+            <h2>🚀 正在加载应用...</h2>
+            <p>请稍候，正在连接数据库</p>
+        </div>
+
+        <!-- Configuration Needed -->
+        <div v-if="!loading && !isConfigured" class="config-needed">
+            <h3>⚙️ 需要配置数据库</h3>
+            <p>请配置 Supabase 连接信息以开始使用项目管理大师</p>
+            <button class="btn btn-primary" @click="showConfigModal">
+                立即配置
+            </button>
+        </div>
+
+        <!-- Main Application -->
+        <div v-if="!loading && isConfigured" class="container">
+            <!-- Statistics Cards -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <h3>{{ statistics.total_projects }}</h3>
+                    <p>总项目数</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--info-color), var(--primary-color));">
+                    <h3>{{ statistics.active_projects }}</h3>
+                    <p>进行中</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--success-color), var(--info-color));">
+                    <h3>{{ statistics.completed_projects }}</h3>
+                    <p>已完成</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--warning-color), var(--danger-color));">
+                    <h3>{{ statistics.total_tasks }}</h3>
+                    <p>总任务数</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" @click="showCreateProjectModal">
+                    ➕ 创建新项目
+                </button>
+                <button class="btn btn-success" @click="showTemplatesModal">
+                    📋 使用模板
+                </button>
+                <button class="btn btn-info" @click="refreshData">
+                    🔄 刷新数据
+                </button>
+            </div>
+
+            <!-- Projects Grid -->
+            <div class="main-content">
+                <h2 style="margin-bottom: 20px;">📁 我的项目</h2>
+
+                <div v-if="projects.length === 0" class="loading">
+                    <p>暂无项目，点击上方按钮创建第一个项目！</p>
+                </div>
+
+                <div v-else class="projects-grid">
+                    <div v-for="project in projects" :key="project.id"
+                         class="project-card"
+                         :class="['priority-' + project.priority.toLowerCase()]"
+                         @click="viewProject(project)">
+
+                        <h3>{{ project.title }}</h3>
+                        <p>{{ project.goal || '暂无描述' }}</p>
+
+                        <div style="margin: 15px 0;">
+                            <span class="project-status" :class="'status-' + project.status.toLowerCase().replace('_', '-')">
+                                {{ getStatusText(project.status) }}
+                            </span>
+                            <span style="margin-left: 10px; color: #666;">
+                                优先级: {{ getPriorityText(project.priority) }}
+                            </span>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <small>📊 {{ project.completed_task_count }}/{{ project.task_count }} 任务完成</small>
+                            <small>👤 {{ project.manager || '未分配' }}</small>
+                        </div>
+
+                        <div style="margin-top: 10px;">
+                            <div style="background: #e0e0e0; height: 6px; border-radius: 3px; overflow: hidden;">
+                                <div style="background: var(--success-color); height: 100%; width: {{ getCompletionPercentage(project) }}%; transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Modal -->
+        <div v-if="showConfig" class="modal-overlay" @click.self="closeConfigModal">
+            <div class="modal">
+                <h2>🔧 配置 Supabase 连接</h2>
+                <p style="margin-bottom: 20px; color: #666;">
+                    请输入你的 Supabase 项目信息。如果没有账号，请先访问
+                    <a href="https://supabase.com" target="_blank">supabase.com</a> 创建免费项目。
+                </p>
+
+                <div class="form-group">
+                    <label>Supabase URL:</label>
+                    <input v-model="configForm.url" placeholder="https://your-project.supabase.co">
+                </div>
+
+                <div class="form-group">
+                    <label>Supabase Anon Key:</label>
+                    <input v-model="configForm.key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn" style="background: var(--secondary-color); color: white;" @click="closeConfigModal">
+                        取消
+                    </button>
+                    <button class="btn btn-primary" @click="saveConfiguration">
+                        保存配置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Project Modal -->
+        <div v-if="showCreateProject" class="modal-overlay" @click.self="closeCreateProjectModal">
+            <div class="modal">
+                <h2>➕ 创建新项目</h2>
+
+                <div class="form-group">
+                    <label>项目名称:</label>
+                    <input v-model="projectForm.title" placeholder="输入项目名称">
+                </div>
+
+                <div class="form-group">
+                    <label>项目目标:</label>
+                    <textarea v-model="projectForm.goal" placeholder="描述项目的目标和愿景"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>项目负责人:</label>
+                    <input v-model="projectForm.manager" placeholder="项目负责人姓名">
+                </div>
+
+                <div class="form-group">
+                    <label>参与人员:</label>
+                    <input v-model="projectForm.participants" placeholder="参与人员，用逗号分隔">
+                </div>
+
+                <div class="form-group">
+                    <label>优先级:</label>
+                    <select v-model="projectForm.priority">
+                        <option value="Low">低</option>
+                        <option value="Medium">中</option>
+                        <option value="High">高</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>开始日期:</label>
+                    <input type="date" v-model="projectForm.start_date">
+                </div>
+
+                <div class="form-group">
+                    <label>结束日期:</label>
+                    <input type="date" v-model="projectForm.end_date">
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn" style="background: var(--secondary-color); color: white;" @click="closeCreateProjectModal">
+                        取消
+                    </button>
+                    <button class="btn btn-primary" @click="createProject">
+                        创建项目
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/supabase-client.js"></script>
+    <script src="js/config.js"></script>
+    <script type="module">
+        const { createApp } = Vue;
+
+        // Vue Application
+        const app = createApp({
+            data() {
+                return {
+                    // Application State
+                    loading: true,
+                    isConfigured: false,
+                    appTitle: '项目管理大师',
+                    appDescription: '基于Web的现代化项目管理工具',
+
+                    // Data
+                    projects: [],
+                    statistics: {
+                        total_projects: 0,
+                        active_projects: 0,
+                        completed_projects: 0,
+                        total_tasks: 0,
+                        completed_tasks: 0
+                    },
+
+                    // Modal States
+                    showConfig: false,
+                    showCreateProject: false,
+                    showTemplates: false,
+
+                    // Forms
+                    configForm: {
+                        url: '',
+                        key: ''
+                    },
+                    projectForm: {
+                        title: '',
+                        goal: '',
+                        manager: '',
+                        participants: '',
+                        priority: 'Medium',
+                        start_date: '',
+                        end_date: ''
+                    },
+
+                    // Services
+                    supabaseManager: null
+                };
+            },
+
+            async mounted() {
+                await this.initializeApp();
+            },
+
+            methods: {
+                async initializeApp() {
+                    try {
+                        // Initialize app configuration
+                        const configInitialized = await window.appConfig.init();
+
+                        if (configInitialized && window.appConfig.isConfigured()) {
+                            this.isConfigured = true;
+                            this.supabaseManager = window.appConfig.getSupabaseManager();
+
+                            // Update app title and description from config
+                            const appConfig = window.appConfig.getAppConfigData();
+                            if (appConfig) {
+                                this.appTitle = appConfig.instance_name;
+                                this.appDescription = appConfig.description;
+                            }
+
+                            // Load initial data
+                            await this.loadAllData();
+                        } else {
+                            // Load saved configuration from localStorage
+                            const savedUrl = localStorage.getItem('supabase_url');
+                            const savedKey = localStorage.getItem('supabase_anon_key');
+
+                            if (savedUrl && savedKey) {
+                                this.configForm.url = savedUrl;
+                                this.configForm.key = savedKey;
+                                await this.saveConfiguration();
+                            }
+                        }
+
+                    } catch (error) {
+                        console.error('应用初始化失败:', error);
+                        this.showNotification('应用初始化失败: ' + error.message, 'error');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async loadAllData() {
+                    try {
+                        // Load projects and statistics in parallel
+                        const [projects, statistics] = await Promise.all([
+                            this.supabaseManager.getProjects(),
+                            this.supabaseManager.getProjectStatistics()
+                        ]);
+
+                        this.projects = projects;
+                        this.statistics = statistics;
+
+                    } catch (error) {
+                        console.error('数据加载失败:', error);
+                        this.showNotification('数据加载失败: ' + error.message, 'error');
+                    }
+                },
+
+                async refreshData() {
+                    this.loading = true;
+                    await this.loadAllData();
+                    this.loading = false;
+                    this.showNotification('数据已刷新', 'success');
+                },
+
+                // Configuration Methods
+                showConfigModal() {
+                    this.showConfig = true;
+                },
+
+                closeConfigModal() {
+                    this.showConfig = false;
+                },
+
+                async saveConfiguration() {
+                    try {
+                        if (!this.configForm.url || !this.configForm.key) {
+                            this.showNotification('请填写完整的配置信息', 'warning');
+                            return;
+                        }
+
+                        // Test connection
+                        const testManager = new SupabaseProjectManager(this.configForm.url, this.configForm.key);
+                        const connected = await testManager.testConnection();
+
+                        if (connected) {
+                            // Save to localStorage
+                            localStorage.setItem('supabase_url', this.configForm.url);
+                            localStorage.setItem('supabase_anon_key', this.configForm.key);
+
+                            // Initialize app with new configuration
+                            await window.appConfig.saveToLocalStorage(this.configForm.url, this.configForm.key);
+
+                            this.isConfigured = true;
+                            this.supabaseManager = window.appConfig.getSupabaseManager();
+                            this.showConfig = false;
+
+                            // Load data
+                            await this.loadAllData();
+
+                            this.showNotification('配置保存成功！', 'success');
+                        } else {
+                            this.showNotification('连接测试失败，请检查配置信息', 'error');
+                        }
+
+                    } catch (error) {
+                        console.error('配置保存失败:', error);
+                        this.showNotification('配置保存失败: ' + error.message, 'error');
+                    }
+                },
+
+                // Project Methods
+                showCreateProjectModal() {
+                    this.projectForm = {
+                        title: '',
+                        goal: '',
+                        manager: '',
+                        participants: '',
+                        priority: 'Medium',
+                        start_date: '',
+                        end_date: ''
+                    };
+                    this.showCreateProject = true;
+                },
+
+                closeCreateProjectModal() {
+                    this.showCreateProject = false;
+                },
+
+                async createProject() {
+                    try {
+                        if (!this.projectForm.title) {
+                            this.showNotification('请输入项目名称', 'warning');
+                            return;
+                        }
+
+                        const project = await this.supabaseManager.createProject(this.projectForm);
+
+                        if (project) {
+                            this.showCreateProject = false;
+                            await this.loadAllData();
+                        }
+
+                    } catch (error) {
+                        console.error('项目创建失败:', error);
+                        this.showNotification('项目创建失败: ' + error.message, 'error');
+                    }
+                },
+
+                viewProject(project) {
+                    this.showNotification(`查看项目: ${project.title}`, 'info');
+                    // TODO: Implement project detail view
+                },
+
+                showTemplatesModal() {
+                    this.showNotification('模板功能开发中...', 'info');
+                    // TODO: Implement templates modal
+                },
+
+                // Utility Methods
+                getStatusText(status) {
+                    const statusMap = {
+                        'Planning': '规划中',
+                        'InProgress': '进行中',
+                        'Completed': '已完成',
+                        'OnHold': '暂停'
+                    };
+                    return statusMap[status] || status;
+                },
+
+                getPriorityText(priority) {
+                    const priorityMap = {
+                        'High': '高',
+                        'Medium': '中',
+                        'Low': '低'
+                    };
+                    return priorityMap[priority] || priority;
+                },
+
+                getCompletionPercentage(project) {
+                    if (project.task_count === 0) return 0;
+                    return Math.round((project.completed_task_count / project.task_count) * 100);
+                },
+
+                showNotification(message, type = 'info') {
+                    // Simple notification implementation
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        color: white;
+                        z-index: 10000;
+                        max-width: 300px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                    `;
+
+                    const colors = {
+                        'success': 'var(--success-color)',
+                        'error': 'var(--danger-color)',
+                        'warning': 'var(--warning-color)',
+                        'info': 'var(--info-color)'
+                    };
+
+                    notification.style.background = colors[type] || colors.info;
+                    notification.textContent = message;
+
+                    document.body.appendChild(notification);
+
+                    setTimeout(() => {
+                        notification.style.transition = 'opacity 0.3s ease';
+                        notification.style.opacity = '0';
+                        setTimeout(() => notification.remove(), 300);
+                    }, 3000);
+                }
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

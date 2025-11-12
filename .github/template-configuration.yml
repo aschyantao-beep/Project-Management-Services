@@ -1,0 +1,74 @@
+# GitHub Template Configuration
+# This file defines metadata for the GitHub repository template
+
+template_owner: your-username
+template_repo: project-manager
+
+# Template information
+name: 项目管理大师 - Project Manager Template
+description: 🚀 一键部署的现代化项目管理工具，基于 Supabase 和 Vercel
+
+# Template categories
+category: [project-management, web-app, vuejs, supabase, vercel]
+
+# Template features
+features:
+  - 🚀 一键部署到 Vercel
+  - 📊 完整的项目管理功能
+  - 🎨 现代化 UI 设计
+  - 📱 响应式布局
+  - 🔄 实时数据同步
+  - 🛠️ 无需后端服务器
+
+# Required environment variables
+env_variables:
+  - name: VITE_SUPABASE_URL
+    description: Supabase Project URL
+    required: true
+  - name: VITE_SUPABASE_ANON_KEY
+    description: Supabase Anon Key
+    required: true
+
+# Optional environment variables
+optional_env_variables:
+  - name: VITE_APP_NAME
+    description: Application Name
+    default: 项目管理大师
+  - name: VITE_APP_DESCRIPTION
+    description: Application Description
+    default: 基于Web的现代化项目管理工具
+  - name: VITE_PRIMARY_COLOR
+    description: Primary Theme Color
+    default: '#007bff'
+  - name: VITE_SECONDARY_COLOR
+    description: Secondary Theme Color
+    default: '#6c757d'
+
+# Setup instructions
+setup_instructions: |
+  ## 🚀 快速开始
+
+  ### 1. 设置 Supabase
+  1. 访问 [Supabase](https://supabase.com) 并创建免费项目
+  2. 在 SQL Editor 中运行 `supabase/setup.sql`
+  3. 继续运行 `supabase/rls_policies.sql`
+  4. 在项目设置中获取 URL 和 Anon Key
+
+  ### 2. 部署到 Vercel
+  1. 点击 "Use this template" 创建你的仓库
+  2. 在 Vercel 中导入项目
+  3. 设置环境变量
+  4. 部署完成！
+
+# Repository topics
+topics:
+  - project-management
+  - vuejs
+  - supabase
+  - vercel
+  - web-app
+  - modern-ui
+  - responsive
+  - real-time
+  - free-heroku-alternative
+  - javascript
